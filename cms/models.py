@@ -11,6 +11,9 @@ class BlogPost(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=200)
@@ -19,3 +22,6 @@ class TeamMember(models.Model):
     email = models.CharField(max_length=200)
     short_bio = models.CharField(max_length=1000)
     long_bio = RichTextField()
+
+    def __str__(self):
+        return self.name
