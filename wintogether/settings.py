@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,12 +27,14 @@ SECRET_KEY = "django-insecure-fq57()gdci4a+(tcf^q*t0#3d6c!b*f#xc_nsi7$i(g39#u2v#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [".appspot.com", "127.0.0.1"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "cms",
+    "ckeditor",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -73,12 +77,40 @@ WSGI_APPLICATION = "wintogether.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.getenv("GAE_APPLICATION", None):
+    # Running on production App Engine, so connect to Google Cloud SQL using the unix socket at /cloudsql/win-together-cms-374413:us-central1:win-together-cms
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "/cloudsql/win-together-cms-374413:us-central1:win-together-cms",
+            "USER": "jeremygarey",
+            "PASSWORD": "",  # place password here
+            "NAME": "cms",
+        }
     }
-}
+
+else:
+    # Running locally, so connect to either a local MySQL instance or connect to Cloud SQL via the proxy
+    # To start the proxy via command line:
+    # ./cloud_sql_proxy -instances "win-together-cms-374413:us-central1:win-together-cms"=tcp:3306
+    # See https://cloud.google.com/sql/docs/mysql-connect-proxy
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "127.0.0.1",
+            "PORT": "3306",
+            "NAME": "cms",
+            "USER": "jeremygarey",
+            "PASSWORD": "Jdtaco10",
+        }
+    }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
@@ -116,6 +148,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
