@@ -5,6 +5,11 @@ steps:
     - name: "python:3.9"
       entrypoint: python3
       args: ["./manage.py", "collectstatic", "--noinput"]
+      secretEnv: ["SECRET_KEY"]
     - name: "gcr.io/cloud-builders/gcloud"
       args: ["app", "deploy"]
+availableSecrets:
+    secretManager:
+        - versionName: projects/win-together-cms/secrets/django_settings/versions/latest
+          env: SECRET_KEY
 timeout: "1600s"
