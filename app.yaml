@@ -12,5 +12,5 @@ handlers:
       script: auto
 
 env_variables:
-    TMP: C:\Users\jeremygarey\AppData\Local\Temp
+    APPENGINE_URL: https://win-together-cms-374413.uc.r.appspot.com
 # [END django_app]
