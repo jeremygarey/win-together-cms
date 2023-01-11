@@ -73,7 +73,7 @@ if APPENGINE_URL:
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS = ["127.0.0.1"]
 # [END gaestd_py_django_csrf]
 
 
@@ -159,8 +159,8 @@ else:
             "HOST": "127.0.0.1",
             "PORT": "3306",
             "NAME": "cms",
-            "USER": "jeremygarey",
-            "PASSWORD": "Jdtaco10",
+            "USER": os.getenv("DB_USER", None),
+            "PASSWORD": os.getenv("DB_PASSWORD", None),
         }
     }
 
