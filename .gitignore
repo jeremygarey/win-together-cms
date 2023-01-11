@@ -1,5 +1,6 @@
 .DS_Store
 venv
+.env
 
 # Django #
 *.log
@@ -8,7 +9,6 @@ venv
 __pycache__/
 db.sqlite3
 media
-static
 
 # Visual Studio Code # 
 .vscode/* 
