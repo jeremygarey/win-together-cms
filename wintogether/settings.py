@@ -69,7 +69,7 @@ if APPENGINE_URL:
     if not urlparse(APPENGINE_URL).scheme:
         APPENGINE_URL = f"https://{APPENGINE_URL}"
 
-    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc, ".jerbeartech.com"]
+    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
@@ -118,6 +118,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "https://erudite-spot-374002.uc.r.appspot.com",
+    "https://www.jerbeartech.com",
+    "https://jerbeartech.com",
 ]
 
 ROOT_URLCONF = "wintogether.urls"
