@@ -69,7 +69,7 @@ if APPENGINE_URL:
     if not urlparse(APPENGINE_URL).scheme:
         APPENGINE_URL = f"https://{APPENGINE_URL}"
 
-    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc, "jerbeartech.com"]
+    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc, ".jerbeartech.com"]
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
