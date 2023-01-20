@@ -19,7 +19,6 @@ def handle_contact_form(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
-            print(body)
 
             try:
                 contact = Contact.objects.get(email=body["email"])
@@ -31,6 +30,8 @@ def handle_contact_form(request):
                     contact.first_name = body["firstName"]
                 if body.get("lastName"):
                     contact.last_name = body["lastName"]
+                if body.get("subscribed"):
+                    contact.subscribed = body["subscribed"]
                 contact.save()
 
             else:
@@ -57,6 +58,36 @@ def handle_contact_form(request):
             response.status_code = 500
             return response
 
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
+
+
+@csrf_exempt
+def handle_email_subscribe(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+
+            try:
+                contact = Contact.objects.get(email=body["email"])
+            except Contact.DoesNotExist:
+                contact = None
+
+            if contact:
+                contact.subscribed = True
+                contact.save()
+            else:
+                contact = Contact(email=body["email"], subscribed=True)
+                contact.save()
+
+            return HttpResponse("Successfully subscribed.")
+
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
     else:
         response = HttpResponse("must be a POST request")
         response.status_code = 400

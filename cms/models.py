@@ -34,8 +34,14 @@ class Contact(models.Model):
     subscribed = models.BooleanField(default=False, blank=True)
     added = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.email
+
 
 class ContactFormSubmission(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     message = models.CharField(max_length=2000)
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.contact.email} - {self.date.strftime('%m/%d/%Y')}"
