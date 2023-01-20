@@ -14,18 +14,22 @@ def index(request):
     return HttpResponse("Hello, world. You're at the Cms index.")
 
 
+def team_member_dict(tm):
+    return {
+        "name": tm.name,
+        "profileImage": tm.profile_image,
+        "jobTitle": tm.job_title,
+        "email": tm.email,
+        "shortBio": tm.short_bio,
+        "longBio": tm.long_bio,
+    }
+
+
 def all_team_members(request):
     tm_objects = TeamMember.objects.all()
     team_members = {}
     for tm in tm_objects:
-        team_members[tm.id] = {
-            "name": tm.name,
-            "profileImage": tm.profile_image,
-            "jobTitle": tm.job_title,
-            "email": tm.email,
-            "shortBio": tm.short_bio,
-            "longBio": tm.long_bio,
-        }
+        team_members[tm.id] = team_member_dict(tm)
     return JsonResponse(team_members)
 
 
@@ -42,7 +46,7 @@ def update_team_member(request):
 
             tm.save()
 
-            return JsonResponse(model_to_dict(tm), safe=False)
+            return JsonResponse(team_member_dict(tm))
         except Exception as e:
             return HttpResponse(f"something went wrong --> {e}")
     else:
@@ -52,32 +56,27 @@ def update_team_member(request):
 def get_team_member(request, id):
     try:
         tm = TeamMember.objects.get(id=id)
-        return JsonResponse(
-            {
-                "name": tm.name,
-                "profileImage": tm.profile_image,
-                "jobTitle": tm.job_title,
-                "email": tm.email,
-                "shortBio": tm.short_bio,
-                "longBio": tm.long_bio,
-            }
-        )
+        return JsonResponse(team_member_dict(tm))
     except Exception as e:
         return HttpResponse(f"something went wrong --> {e}")
+
+
+def blog_post_dict(bp):
+    return {
+        "name": bp.name,
+        "body": bp.body,
+        "summary": bp.summary,
+        "mainImage": bp.main_image,
+        "thumbnailImage": bp.thumbnail_image,
+        "updatedDate": bp.updated,
+    }
 
 
 def all_blog_posts(request):
     bp_objects = BlogPost.objects.all()
     blog_posts = {}
     for bp in bp_objects:
-        blog_posts[bp.id] = {
-            "name": bp.name,
-            "body": bp.body,
-            "summary": bp.summary,
-            "mainImage": bp.main_image,
-            "thumbnailImage": bp.thumbnail_image,
-            "updatedDate": bp.updated,
-        }
+        blog_posts[bp.id] = blog_post_dict(bp)
     return JsonResponse(blog_posts)
 
 
@@ -94,7 +93,7 @@ def update_blog_post(request):
 
             bp.save()
 
-            return JsonResponse(model_to_dict(bp), safe=False)
+            return JsonResponse(blog_post_dict(bp))
         except Exception as e:
             return HttpResponse(f"something went wrong --> {e}")
     else:
@@ -104,16 +103,7 @@ def update_blog_post(request):
 def get_blog_post(request, id):
     try:
         bp = BlogPost.objects.get(id=id)
-        return JsonResponse(
-            {
-                "name": bp.name,
-                "body": bp.body,
-                "summary": bp.summary,
-                "mainImage": bp.main_image,
-                "thumbnailImage": bp.thumbnail_image,
-                "updatedDate": bp.updated,
-            }
-        )
+        return JsonResponse(blog_post_dict(bp))
     except Exception as e:
         return HttpResponse(f"something went wrong --> {e}")
 
