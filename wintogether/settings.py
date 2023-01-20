@@ -74,19 +74,8 @@ if APPENGINE_URL:
     SECURE_SSL_REDIRECT = True
 else:
     ALLOWED_HOSTS = ["127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 # [END gaestd_py_django_csrf]
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = "django-insecure-fq57()gdci4a+(tcf^q*t0#3d6c!b*f#xc_nsi7$i(g39#u2v#"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = [".appspot.com", "127.0.0.1"]
 
 
 # Application definition
@@ -122,6 +111,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://jerbeartech.com",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = "wintogether.urls"
 
 TEMPLATES = [
@@ -142,9 +133,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "wintogether.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 if os.getenv("GAE_APPLICATION", None):
     # Running on production App Engine, so connect to Google Cloud SQL using the unix socket at /cloudsql/win-together-cms-374413:us-central1:win-together-cms
@@ -173,13 +161,6 @@ else:
             "PASSWORD": os.getenv("DB_PASSWORD", None),
         }
     }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 
 # Password validation
