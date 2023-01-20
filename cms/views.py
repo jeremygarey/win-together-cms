@@ -48,9 +48,13 @@ def update_team_member(request):
 
             return JsonResponse(team_member_dict(tm))
         except Exception as e:
-            return HttpResponse(f"something went wrong --> {e}")
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
     else:
-        return HttpResponse("must be a POST request")
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
 
 
 def get_team_member(request, id):
@@ -58,7 +62,9 @@ def get_team_member(request, id):
         tm = TeamMember.objects.get(id=id)
         return JsonResponse(team_member_dict(tm))
     except Exception as e:
-        return HttpResponse(f"something went wrong --> {e}")
+        response = HttpResponse(f"something went wrong --> {e}")
+        response.status_code = 500
+        return response
 
 
 def blog_post_dict(bp):
@@ -95,9 +101,13 @@ def update_blog_post(request):
 
             return JsonResponse(blog_post_dict(bp))
         except Exception as e:
-            return HttpResponse(f"something went wrong --> {e}")
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
     else:
-        return HttpResponse("must be a POST request")
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
 
 
 def get_blog_post(request, id):
@@ -105,7 +115,9 @@ def get_blog_post(request, id):
         bp = BlogPost.objects.get(id=id)
         return JsonResponse(blog_post_dict(bp))
     except Exception as e:
-        return HttpResponse(f"something went wrong --> {e}")
+        response = HttpResponse(f"something went wrong --> {e}")
+        response.status_code = 500
+        return response
 
 
 @csrf_exempt
