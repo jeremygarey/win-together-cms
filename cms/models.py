@@ -25,3 +25,17 @@ class TeamMember(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Contact(models.Model):
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
+    email = models.CharField(max_length=200)
+    subscribed = models.BooleanField(default=False, blank=True)
+    added = models.DateTimeField(auto_now_add=True)
+
+
+class ContactFormSubmission(models.Model):
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    message = models.CharField(max_length=2000)
+    date = models.DateTimeField(auto_now_add=True)

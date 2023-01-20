@@ -14,6 +14,55 @@ def index(request):
     return HttpResponse("Hello, world. You're at the Cms index.")
 
 
+@csrf_exempt
+def handle_contact_form(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            print(body)
+
+            try:
+                contact = Contact.objects.get(email=body["email"])
+            except Contact.DoesNotExist:
+                contact = None
+            if contact:
+                # update first and last name info
+                if body.get("firstName"):
+                    contact.first_name = body["firstName"]
+                if body.get("lastName"):
+                    contact.last_name = body["lastName"]
+                contact.save()
+
+            else:
+                # create new contact
+                contact = Contact(
+                    first_name=(body["firstName"] if body.get("firstName") else ""),
+                    last_name=(body["lastName"] if body.get("lastName") else ""),
+                    email=body["email"],
+                    subscribed=(
+                        body["subscribed"] if body.get("subscribed") else False
+                    ),
+                )
+                contact.save()
+
+            new_form_submission = ContactFormSubmission(
+                contact=contact,
+                message=body["message"],
+            )
+            new_form_submission.save()
+
+            return HttpResponse("Contact form saved")
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
+
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
+
+
 def team_member_dict(tm):
     return {
         "name": tm.name,
