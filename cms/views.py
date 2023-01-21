@@ -64,6 +64,24 @@ def handle_contact_form(request):
         return response
 
 
+def contact_form_submission_dict(cfs):
+    return {
+        "name": f"{cfs.contact.first_name} {cfs.contact.last_name}",
+        "email": cfs.contact.email,
+        "subscribed": cfs.contact.subscribed,
+        "message": cfs.message,
+        "date": cfs.date,
+    }
+
+
+def all_contact_form_submissions(request):
+    cfs_objects = ContactFormSubmission.objects.all()
+    all_cfs = {}
+    for cfs in cfs_objects:
+        all_cfs[cfs.id] = contact_form_submission_dict(cfs)
+    return JsonResponse(all_cfs)
+
+
 @csrf_exempt
 def handle_email_subscribe(request):
     if request.method == "POST":

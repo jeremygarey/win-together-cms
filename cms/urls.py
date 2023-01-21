@@ -6,6 +6,11 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("contact", views.handle_contact_form, name="handle contact form"),
     path(
+        "contact-form-submissions",
+        views.all_contact_form_submissions,
+        name="all contact form submissions",
+    ),
+    path(
         "email-subscribe", views.handle_email_subscribe, name="handle email subscribe"
     ),
     path("team-members", views.all_team_members, name="all team members"),
