@@ -1,6 +1,7 @@
 from .models import *
 
 import json
+from datetime import date, timedelta
 
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
@@ -264,9 +265,21 @@ def add_pageview(request):
             response.status_code = 500
             return response
     else:
-        response = HttpResponse("must be a POST request")
-        response.status_code = 400
-        return response
+        return get_pageviews()
+
+
+def get_pageviews():
+    today = date.today()
+    one_week_ago = today - timedelta(days=7)
+    one_month_ago = today - timedelta(days=31)
+
+    return JsonResponse(
+        {
+            "total": PageView.objects.count(),
+            "week": PageView.objects.filter(date__gte=one_week_ago).count(),
+            "month": PageView.objects.filter(date__gte=one_month_ago).count(),
+        }
+    )
 
 
 @ensure_csrf_cookie
