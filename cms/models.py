@@ -45,3 +45,13 @@ class ContactFormSubmission(models.Model):
 
     def __str__(self):
         return f"{self.contact.email} - {self.date.strftime('%m/%d/%Y')}"
+
+
+class PageView(models.Model):
+    page_source = models.CharField(max_length=200)
+    screen_height = models.IntegerField(blank=True, null=True)
+    screen_width = models.IntegerField(blank=True, null=True)
+    browser_type = models.CharField(max_length=200)
+    language = models.CharField(max_length=100)
+    time_zone = models.CharField(max_length=100)
+    date = models.DateTimeField(auto_now_add=True)

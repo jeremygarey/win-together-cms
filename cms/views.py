@@ -82,6 +82,18 @@ def all_contact_form_submissions(request):
     return JsonResponse(all_cfs)
 
 
+def get_subscribers(request):
+    subscriber_objects = Contact.objects.filter(subscribed=True)
+    subscribers = {}
+    for s in subscriber_objects:
+        subscribers[s.id] = {
+            "email": s.email,
+            "name": f"{s.first_name} {s.last_name}" if s.first_name else None,
+            "date": s.added,
+        }
+    return JsonResponse(subscribers)
+
+
 @csrf_exempt
 def handle_email_subscribe(request):
     if request.method == "POST":
@@ -229,6 +241,31 @@ def sign_in(request):
     else:
         response = HttpResponse("Invalid credentials")
         response.status_code = 401
+        return response
+
+
+@csrf_exempt
+def add_pageview(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            page_view = PageView(
+                page_source=body["pageSource"],
+                screen_height=int(body["screenHeight"]),
+                screen_width=int(body["screenWidth"]),
+                browser_type=body["browserType"],
+                language=body["language"],
+                time_zone=body["timeZone"],
+            )
+            page_view.save()
+            return HttpResponse("added")
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
         return response
 
 
