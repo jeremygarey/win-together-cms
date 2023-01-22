@@ -268,16 +268,41 @@ def add_pageview(request):
         return get_pageviews()
 
 
+from django.db.models.functions import TruncDay
+from django.db.models import Count
+
+
+def get_pageviews_per_day(start_date):
+    views_per_day_objects = (
+        PageView.objects.annotate(day=TruncDay("date"))
+        .filter(date__gte=start_date)
+        .values("day")
+        .annotate(c=Count("id"))
+        .values("day", "c")
+    )
+
+    views_per_day = {}
+    for d in views_per_day_objects:
+        views_per_day[d["day"].strftime("%Y-%m-%d")] = d["c"]
+
+    return views_per_day
+
+
 def get_pageviews():
     today = date.today()
     one_week_ago = today - timedelta(days=7)
     one_month_ago = today - timedelta(days=31)
 
+    views_per_day = get_pageviews_per_day(start_date=one_month_ago)
+
     return JsonResponse(
         {
-            "total": PageView.objects.count(),
-            "week": PageView.objects.filter(date__gte=one_week_ago).count(),
-            "month": PageView.objects.filter(date__gte=one_month_ago).count(),
+            "totals": {
+                "allTime": PageView.objects.count(),
+                "week": PageView.objects.filter(date__gte=one_week_ago).count(),
+                "month": PageView.objects.filter(date__gte=one_month_ago).count(),
+            },
+            "byDay": views_per_day,
         }
     )
 
