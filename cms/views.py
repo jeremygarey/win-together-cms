@@ -396,45 +396,45 @@ def get_pageviews():
     )
 
 
-from io import BytesIO
-from google.cloud import storage
+# from io import BytesIO
+# from google.cloud import storage
 
 
-@csrf_exempt
-def upload_tm_image(request):
-    if request.method == "POST":
-        try:
-            # print(request.body
+# @csrf_exempt
+# def upload_tm_image(request):
+#     if request.method == "POST":
+#         try:
+#             # print(request.body
 
-            # )
+#             # )
 
-            some_bytes = request.body
+#             some_bytes = request.body
 
-            # Open file in binary write mode
-            binary_file = open("my_file.png", "wb")
+#             # Open file in binary write mode
+#             binary_file = open("my_file.png", "wb")
 
-            # Write bytes to file
-            binary_file.write(some_bytes)
+#             # Write bytes to file
+#             binary_file.write(some_bytes)
 
-            # Close file
-            binary_file.close()
+#             # Close file
+#             binary_file.close()
 
-            # storage_client = storage.Client.from_service_account_json(
-            #     "./cms/erudite-spot-374002-f32df51d5be4.json", project="win-together-ui"
-            # )
-            # bucket = storage_client.get_bucket("wtg-cms-images")
-            # path = "./cms/ test.txt"
-            # blob = bucket.blob("uploaded_test.txt")
-            # # blob.upload_from_filename(path)
-            return HttpResponse("image uploaded")
-        except Exception as e:
-            response = HttpResponse(f"something went wrong --> {e}")
-            response.status_code = 500
-            return response
-    else:
-        response = HttpResponse("must be a POST request")
-        response.status_code = 400
-        return response
+#             # storage_client = storage.Client.from_service_account_json(
+#             #     "./cms/erudite-spot-374002-f32df51d5be4.json", project="win-together-ui"
+#             # )
+#             # bucket = storage_client.get_bucket("wtg-cms-images")
+#             # path = "./cms/ test.txt"
+#             # blob = bucket.blob("uploaded_test.txt")
+#             # # blob.upload_from_filename(path)
+#             return HttpResponse("image uploaded")
+#         except Exception as e:
+#             response = HttpResponse(f"something went wrong --> {e}")
+#             response.status_code = 500
+#             return response
+#     else:
+#         response = HttpResponse("must be a POST request")
+#         response.status_code = 400
+#         return response
 
 
 @ensure_csrf_cookie
