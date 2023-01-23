@@ -10,6 +10,7 @@ class BlogPost(models.Model):
     thumbnail_image = models.CharField(max_length=300)
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -22,6 +23,7 @@ class TeamMember(models.Model):
     email = models.CharField(max_length=200)
     short_bio = models.CharField(max_length=1000)
     long_bio = RichTextField()
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -42,6 +44,7 @@ class ContactFormSubmission(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     message = models.CharField(max_length=2000)
     date = models.DateTimeField(auto_now_add=True)
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.contact.email} - {self.date.strftime('%m/%d/%Y')}"
