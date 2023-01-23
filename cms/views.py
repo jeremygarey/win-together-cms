@@ -396,10 +396,6 @@ def get_pageviews():
     )
 
 
-# from io import BytesIO
-# from google.cloud import storage
-
-
 # @csrf_exempt
 # def upload_tm_image(request):
 #     if request.method == "POST":
