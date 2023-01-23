@@ -1,12 +1,15 @@
 from .models import *
 
 import json
+import re
 from datetime import date, timedelta
 
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.middleware.csrf import get_token
 from django.forms.models import model_to_dict
+from django.db.models.functions import TruncDay
+from django.db.models import Count
 
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
@@ -72,11 +75,12 @@ def contact_form_submission_dict(cfs):
         "subscribed": cfs.contact.subscribed,
         "message": cfs.message,
         "date": cfs.date,
+        "archived": cfs.archived,
     }
 
 
 def all_contact_form_submissions(request):
-    cfs_objects = ContactFormSubmission.objects.all()
+    cfs_objects = ContactFormSubmission.objects.all().order_by("date")
     all_cfs = {}
     for cfs in cfs_objects:
         all_cfs[cfs.id] = contact_form_submission_dict(cfs)
@@ -84,10 +88,21 @@ def all_contact_form_submissions(request):
 
 
 def get_subscribers(request):
-    subscriber_objects = Contact.objects.filter(subscribed=True)
-    subscribers = {}
+    today = date.today()
+    one_week_ago = today - timedelta(days=7)
+    one_month_ago = today - timedelta(days=31)
+
+    subscriber_objects = Contact.objects.filter(subscribed=True).order_by("added")
+    all_time = subscriber_objects.count()
+    this_week = subscriber_objects.filter(added__gte=one_week_ago).count()
+    this_month = subscriber_objects.filter(added__gte=one_month_ago).count()
+
+    subscribers = {
+        "contacts": {},
+        "added": {"allTime": all_time, "week": this_week, "month": this_month},
+    }
     for s in subscriber_objects:
-        subscribers[s.id] = {
+        subscribers["contacts"][s.id] = {
             "email": s.email,
             "name": f"{s.first_name} {s.last_name}" if s.first_name else None,
             "date": s.added,
@@ -133,6 +148,7 @@ def team_member_dict(tm):
         "email": tm.email,
         "shortBio": tm.short_bio,
         "longBio": tm.long_bio,
+        "archived": tm.archived,
     }
 
 
@@ -144,6 +160,11 @@ def all_team_members(request):
     return JsonResponse(team_members)
 
 
+def camel_to_snake(name):
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
 @csrf_exempt
 def update_team_member(request):
     if request.method == "POST":
@@ -153,7 +174,7 @@ def update_team_member(request):
             tm = TeamMember.objects.get(id=body["id"])
 
             for field in change_fields:
-                setattr(tm, field, change_fields[field])
+                setattr(tm, camel_to_snake(field), change_fields[field])
 
             tm.save()
 
@@ -166,6 +187,48 @@ def update_team_member(request):
         response = HttpResponse("must be a POST request")
         response.status_code = 400
         return response
+
+
+@csrf_exempt
+def create_team_member(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)["tm"]
+
+            tm = TeamMember(
+                name=body["name"],
+                profile_image="https://picsum.photos/300/200",  # TODO fix
+                job_title=body["jobTitle"],
+                email=body["email"],
+                short_bio=body["shortBio"],
+                long_bio=body["longBio"],
+                archived=body["archived"],
+            )
+
+            tm.save()
+
+            return JsonResponse({"id": tm.id, "tm": team_member_dict(tm)})
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
+
+
+# @csrf_exempt
+# def archive_team_member(request, id):
+#     tm = TeamMember.objects.get(id=id)
+#     tm.archived = True
+#     return HttpResponse("archived")
+
+
+# @csrf_exempt
+# def unarchive_team_member(request, id):
+#     print(id)
+#     return HttpResponse("unarchived")
 
 
 def get_team_member(request, id):
@@ -186,6 +249,7 @@ def blog_post_dict(bp):
         "mainImage": bp.main_image,
         "thumbnailImage": bp.thumbnail_image,
         "updatedDate": bp.updated,
+        "archived": bp.archived,
     }
 
 
@@ -206,11 +270,40 @@ def update_blog_post(request):
             bp = BlogPost.objects.get(id=body["id"])
 
             for field in change_fields:
-                setattr(bp, field, change_fields[field])
+                setattr(bp, camel_to_snake(field), change_fields[field])
 
             bp.save()
 
             return JsonResponse(blog_post_dict(bp))
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
+
+
+@csrf_exempt
+def create_blog_post(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)["bp"]
+            print(body)
+
+            bp = BlogPost(
+                name=body["name"],
+                main_image="https://picsum.photos/300/200",  # TODO fix
+                thumbnail_image="https://picsum.photos/300/200",  # TODO fix
+                summary=body["summary"],
+                body=body["body"],
+                archived=body["archived"],
+            )
+
+            bp.save()
+
+            return JsonResponse({"id": bp.id, "bp": blog_post_dict(bp)})
         except Exception as e:
             response = HttpResponse(f"something went wrong --> {e}")
             response.status_code = 500
@@ -268,10 +361,6 @@ def add_pageview(request):
         return get_pageviews()
 
 
-from django.db.models.functions import TruncDay
-from django.db.models import Count
-
-
 def get_pageviews_per_day(start_date):
     views_per_day_objects = (
         PageView.objects.annotate(day=TruncDay("date"))
@@ -305,6 +394,47 @@ def get_pageviews():
             "byDay": views_per_day,
         }
     )
+
+
+from io import BytesIO
+from google.cloud import storage
+
+
+@csrf_exempt
+def upload_tm_image(request):
+    if request.method == "POST":
+        try:
+            # print(request.body
+
+            # )
+
+            some_bytes = request.body
+
+            # Open file in binary write mode
+            binary_file = open("my_file.png", "wb")
+
+            # Write bytes to file
+            binary_file.write(some_bytes)
+
+            # Close file
+            binary_file.close()
+
+            # storage_client = storage.Client.from_service_account_json(
+            #     "./cms/erudite-spot-374002-f32df51d5be4.json", project="win-together-ui"
+            # )
+            # bucket = storage_client.get_bucket("wtg-cms-images")
+            # path = "./cms/ test.txt"
+            # blob = bucket.blob("uploaded_test.txt")
+            # # blob.upload_from_filename(path)
+            return HttpResponse("image uploaded")
+        except Exception as e:
+            response = HttpResponse(f"something went wrong --> {e}")
+            response.status_code = 500
+            return response
+    else:
+        response = HttpResponse("must be a POST request")
+        response.status_code = 400
+        return response
 
 
 @ensure_csrf_cookie
