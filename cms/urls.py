@@ -35,5 +35,5 @@ urlpatterns = [
     path("sign-in", views.sign_in, name="sign in"),
     path("subscribers", views.get_subscribers, name="get subscribers"),
     path("set-csrf-token", views.set_csrf_token, name="set csrf token"),
-    path("upload-tm-image", views.upload_tm_image, name="upload tm image"),
+    # path("upload-tm-image", views.upload_tm_image, name="upload tm image"),
 ]
