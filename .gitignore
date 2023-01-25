@@ -2,8 +2,6 @@
 venv
 .env
 
-*.json
-
 # Django #
 *.log
 *.pot
